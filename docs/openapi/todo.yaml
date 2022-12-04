@@ -1,0 +1,177 @@
+openapi: 3.0.0
+info:
+  title: Todo
+  version: '1.0'
+  description: This is sample todo app.
+  contact:
+    name: choimake
+    email: choimake330@gmail.com
+servers:
+  - url: 'http://localhost:3000'
+tags:
+  - name: login
+    description: Login
+  - name: todo
+    description: Todo
+paths:
+  /todos:
+    get:
+      summary: Get My Todo Info
+      tags:
+        - todo
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Todo'
+              examples:
+                example:
+                  value:
+                    - id: 1
+                      userId: 1
+                      content: first Todo
+                      mediaUrl: 'https://example.com/image1.png'
+                    - id: 2
+                      userId: 1
+                      content: second Todo
+                      mediaUrl: 'https://example.com/image2.png'
+      operationId: get-todos
+      parameters: []
+      description: Retrieve the information of the todo created by user
+      security:
+        - bearerToken: []
+    post:
+      summary: Create New Todo
+      tags:
+        - todo
+      operationId: create-todo
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Todo'
+              examples:
+                example:
+                  value:
+                    id: 1
+                    userId: 1
+                    content: first Todo
+                    mediaUrl: 'https://example.com/image.png'
+      requestBody:
+        $ref: '#/components/requestBodies/CreateTodo'
+      description: Create a new todo.
+      security:
+        - bearerToken: []
+  /login:
+    post:
+      summary: Login
+      tags:
+        - login
+      operationId: post-login
+      responses:
+        '200':
+          $ref: '#/components/responses/LoginResponse'
+        '401':
+          $ref: '#/components/responses/ErrorResponse'
+      requestBody:
+        $ref: '#/components/requestBodies/LoginRequest'
+      description: Login By user id and password
+components:
+  schemas:
+    Todo:
+      title: Todo
+      x-stoplight:
+        id: 8ujo3cjahq0w7
+      type: object
+      x-examples:
+        example:
+          id: 1
+          userId: 1
+          content: first Todo
+          mediaUrl: 'https://example.com/image.png'
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        content:
+          type: string
+          minLength: 1
+          maxLength: 256
+        mediaUrl:
+          type: string
+          format: uri
+      required:
+        - id
+        - userId
+        - content
+  requestBodies:
+    CreateTodo:
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              content:
+                type: string
+                minLength: 1
+                maxLength: 256
+              media:
+                format: binary
+                type: string
+            required:
+              - content
+    LoginRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              userId:
+                type: integer
+                minimum: 1
+              password:
+                type: string
+                minLength: 1
+                maxLength: 128
+  responses:
+    ErrorResponse:
+      description: Response when an error occurs
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+            required:
+              - message
+          examples:
+            Example:
+              value:
+                message: fail to process
+    LoginResponse:
+      description: Example response
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              access_token:
+                type: string
+            required:
+              - access_token
+          examples:
+            Example:
+              value:
+                access_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+  securitySchemes:
+    bearerToken:
+      type: http
+      scheme: bearer
